@@ -480,6 +480,37 @@ const AuthPage = () => {
             Join now
           </button>
 
+          {/* For Companies Dropdown */}
+          <div className="relative group/company">
+            <button
+              type="button"
+              className="flex items-center gap-1.5 font-bold text-slate-600 hover:text-emerald-600 transition-all text-sm py-2 cursor-pointer"
+            >
+              For Companies <ChevronDown size={14} className="group-hover/company:rotate-180 transition-transform duration-300" />
+            </button>
+
+            <div className="absolute top-full right-0 w-64 bg-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-slate-100 p-2 mt-1 hidden group-hover/company:block overflow-hidden z-[100]">
+              <Link to="/company/register" className="flex items-start gap-3 p-3 hover:bg-emerald-50 rounded-xl transition-colors group">
+                <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                  <Building2 size={18} />
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-bold text-slate-800">Register as Company</p>
+                  <p className="text-[10px] text-slate-500 font-medium">Post jobs and hire talent</p>
+                </div>
+              </Link>
+
+              <Link to="/company/login" className="flex items-start gap-3 p-3 hover:bg-emerald-50 rounded-xl transition-colors group mt-1">
+                <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                  <LogIn size={18} />
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-bold text-slate-800">Company Sign in</p>
+                  <p className="text-[10px] text-slate-500 font-medium">Access your dashboard</p>
+                </div>
+              </Link>
+            </div>
+          </div>
 
           <button
             type="button"
