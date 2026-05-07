@@ -28,12 +28,14 @@ import {
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { registerCompanyApi } from '../services/companyApi';
+import { registerCompanyApi, resubmitCompanyApi } from '../services/companyApi';
+import { getMyProfile } from '../services/api';
 
 const CompanyRegister = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1);
+  const [isEditMode, setIsEditMode] = useState(false);
   
   // State for upload animation progress
   const [uploadProgress, setUploadProgress] = useState({
@@ -81,6 +83,49 @@ const CompanyRegister = () => {
       }
     }
   }, []);
+
+  // Check company registration permission on mount
+  useEffect(() => {
+    const checkCompanyStatus = async () => {
+      try {
+        const data = await getMyProfile();
+        if (data.success) {
+          const company = data.profile?.userId?.company_id;
+          if (company) {
+            if (company.status === 'pending' || company.verification_status === 'pending') {
+              toast.error("You already have a company registration request pending review.", { id: "pending-err" });
+              navigate('/dashboard');
+            } else if (company.status === 'approved' && company.verification_status === 'approved') {
+              toast.success("Your company is already approved!", { id: "approved-success" });
+              navigate('/dashboard');
+            } else if (company.status === 'rejected' || company.verification_status === 'rejected') {
+              // Prepopulate details for update and resubmission
+              setFormData(prev => ({
+                ...prev,
+                company_name: company.name || '',
+                official_work_email: company.official_work_email || '',
+                contact_person_name: company.contact_person_name || '',
+                mobile_number: company.mobile_number || '',
+                company_location: company.company_location || '',
+                website_url: company.website_url || '',
+                about_company: company.about_company || '',
+                industry: company.industry || '',
+                company_size: company.company_size || '',
+                gst_number: company.gst_number || '',
+                cin_number: company.cin_number || '',
+                pan_number: company.pan_number || ''
+              }));
+              setIsEditMode(true);
+              toast.error(`Company Verification Rejected. Reason: "${company.rejectionReason || 'Invalid GST Document'}"`, { id: "rejected-warning-init", duration: 7000 });
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Error checking company status:", err);
+      }
+    };
+    checkCompanyStatus();
+  }, [navigate]);
 
   // Autosave draft every 30 seconds
   useEffect(() => {
@@ -228,11 +273,14 @@ const CompanyRegister = () => {
         }
       });
 
-      const response = await registerCompanyApi(dataPayload);
+      const response = isEditMode 
+        ? await resubmitCompanyApi(dataPayload)
+        : await registerCompanyApi(dataPayload);
+
       if (response.success) {
-        toast.success("Registration submitted! Our Trust & Safety team is verifying your details.", { duration: 6000 });
+        toast.success(isEditMode ? "Resubmission successful! Back to admin review queue." : "Registration submitted! Our Trust & Safety team is verifying your details.", { duration: 6000 });
         localStorage.removeItem('company_reg_draft'); // Clean draft on success
-        navigate("/dashboard", { state: { bannerMessage: "Your company verification request is currently under review." } });
+        navigate("/dashboard", { state: { bannerMessage: isEditMode ? "Your resubmitted company request is currently under review." : "Your company verification request is currently under review." } });
       } else {
         toast.error(response.message || "Failed to submit registration");
       }
@@ -274,7 +322,7 @@ const CompanyRegister = () => {
                 <Building2 size={36} />
              </div>
              <h2 className="text-3xl font-black text-slate-900 tracking-tighter leading-none">
-                Register Employer
+                {isEditMode ? "Update & Resubmit" : "Register Employer"}
              </h2>
              <p className="text-emerald-700 font-bold text-xs mt-2 uppercase tracking-wider flex items-center gap-1.5">
                 <Sparkles size={12} /> Trusted Verification
@@ -668,11 +716,11 @@ const CompanyRegister = () => {
                 {loading ? (
                   <>
                     <Loader2 size={18} className="animate-spin" />
-                    Encrypting & Registering...
+                    {isEditMode ? "Encrypting & Resubmitting..." : "Encrypting & Registering..."}
                   </>
                 ) : (
                   <>
-                    Submit Company for Verification <Sparkles size={18} />
+                    {isEditMode ? "Resubmit Application for Verification" : "Submit Company for Verification"} <Sparkles size={18} />
                   </>
                 )}
               </button>

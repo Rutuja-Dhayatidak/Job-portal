@@ -195,7 +195,22 @@ exports.getCompanies = async (req, res) => {
 
 exports.verifyCompany = async (req, res) => {
   try {
-    const company = await Company.findByIdAndUpdate(req.params.id, { isVerified: true }, { new: true });
+    const company = await Company.findById(req.params.id);
+    if (!company) return res.status(404).json({ message: "Company not found" });
+
+    company.isVerified = true;
+    company.status = "approved";
+    company.verification_status = "approved";
+    await company.save();
+
+    if (company.owner_user_id) {
+      await Candidate.findByIdAndUpdate(company.owner_user_id, {
+        role: "employer",
+        is_employer: true,
+        current_mode: 'employer'
+      });
+    }
+
     res.json({ message: "Company verified", company });
   } catch (err) {
     res.status(500).json({ message: err.message });

@@ -86,6 +86,9 @@ const CandidateNavbar = () => {
   }, []);
 
   const user = profile?.userId || {};
+  const company = user?.company_id;
+  const isPending = company && (company.status === 'pending' || company.verification_status === 'pending');
+  const isApproved = company && (company.status === 'approved' && company.verification_status === 'approved');
 
   return (
     <>
@@ -248,13 +251,15 @@ const CandidateNavbar = () => {
                 <div className="h-px bg-slate-100 my-2"></div>
 
                 <div className="px-2 space-y-0.5">
-                  <GithubMenuItem 
-                    icon={<Briefcase size={16} />} 
-                    label="Create Company" 
-                    onClick={() => {
-                      setShowCompanyModal(true);
-                    }}
-                  />
+                  {!(isPending || isApproved) && (
+                    <GithubMenuItem 
+                      icon={<Briefcase size={16} />} 
+                      label="Create Company" 
+                      onClick={() => {
+                        setShowCompanyModal(true);
+                      }}
+                    />
+                  )}
                   <GithubMenuItem icon={<Briefcase size={16} />} label="Settings" />
                 </div>
               </div>

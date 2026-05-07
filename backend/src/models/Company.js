@@ -9,7 +9,7 @@ const companySchema = new mongoose.Schema({
   company_size: { type: String },
   website_url: { type: String },
   about_company: { type: String },
-  status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
+  status: { type: String, enum: ['pending', 'approved', 'rejected', 'resubmitted'], default: 'pending' },
   rejectionReason: { type: String },
   isVerified: { type: Boolean, default: false },
   isBlocked: { type: Boolean, default: false },
@@ -28,7 +28,7 @@ const companySchema = new mongoose.Schema({
   // Trust and security metrics
   trust_score: { type: Number, default: 0 },
   risk_level: { type: String, enum: ['Low', 'Medium', 'High', 'Critical'], default: 'Low' },
-  verification_status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
+  verification_status: { type: String, enum: ['pending', 'approved', 'rejected', 'resubmitted'], default: 'pending' },
 
   // Individual verification flags
   email_verified: { type: Boolean, default: false },

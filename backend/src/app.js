@@ -24,6 +24,8 @@ app.use("/api/upload", require("./routes/uploadRoutes"));
 const candidateRoutes = require("./routes/candidateRoutes");
 app.use("/api/candidates", candidateRoutes);
 app.use("/api/company", require("./routes/companyRoutes"));
+app.use("/api/employer/team", require("./routes/employerTeamRoutes"));
+app.use("/api/employer", require("./routes/employerRoutes"));
 app.use("/api/profile", require("./routes/profileRoutes"));
 
 app.get("/", (req, res) => {

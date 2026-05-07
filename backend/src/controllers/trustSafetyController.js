@@ -730,6 +730,15 @@ exports.updateVerificationField = async (req, res) => {
     // If email_verified && website_verified && documents_verified are all true, verification_status = "approved"
     if (company.email_verified && company.website_verified && company.documents_verified) {
       company.verification_status = 'approved';
+      company.status = 'approved';
+      company.isVerified = true;
+      if (company.owner_user_id) {
+        await Candidate.findByIdAndUpdate(company.owner_user_id, {
+          role: "employer",
+          is_employer: true,
+          current_mode: 'employer'
+        });
+      }
     } else {
       company.verification_status = 'pending';
     }

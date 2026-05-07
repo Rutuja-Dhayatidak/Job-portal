@@ -1,5 +1,5 @@
 import React, { useEffect, Suspense, lazy } from 'react'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 import Lenis from 'lenis'
 import './App.css'
 
@@ -22,9 +22,12 @@ const Dashboard = lazy(() => import('./components/dashboard/Dashboard'))
 const Profile = lazy(() => import('./pages/Profile'))
 const EditProfile = lazy(() => import('./pages/EditProfile'))
 const CompanyRegister = lazy(() => import('./components/CompanyRegister'))
-const CompanyLogin = lazy(() => import('./components/CompanyLogin'))
+const CompanyLogin = lazy(() => import('./company_employ/CompanyLogin'))
+const EmployerDashboard = lazy(() => import('./company_employ/EmployerDashboard'))
+const EmployerProtectedRoute = lazy(() => import('./company_employ/EmployerProtectedRoute'))
 const ActivateAdmin = lazy(() => import('./pages/ActivateAdmin'))
 const CompanyVerifyEmail = lazy(() => import('./components/CompanyVerifyEmail'))
+const AcceptInvite = lazy(() => import('./company_employ/AcceptInvite'))
 
 // Super Admin Components
 const AdminLayout = lazy(() => import('./SuperAdmin/layout/AdminLayout'))
@@ -130,27 +133,38 @@ function LandingPage() {
   )
 }
 
-function App() {
+function LenisProvider({ children }) {
+  const location = useLocation()
+
   useEffect(() => {
-    const lenis = new Lenis()
+    if (location.pathname === '/') {
+      const lenis = new Lenis()
+      let frameId
 
-    function raf(time) {
-      lenis.raf(time)
+      function raf(time) {
+        lenis.raf(time)
+        frameId = requestAnimationFrame(raf)
+      }
+
       requestAnimationFrame(raf)
+
+      return () => {
+        cancelAnimationFrame(frameId)
+        lenis.destroy()
+      }
     }
+  }, [location.pathname])
 
-    requestAnimationFrame(raf)
+  return children
+}
 
-    return () => {
-      lenis.destroy()
-    }
-  }, [])
-
+function App() {
   return (
     <Router>
-      <Toaster position="top-center" />
-      <main className="min-h-screen">
-        <Suspense fallback={<LoadingFallback />}>
+      <LenisProvider>
+        <Toaster position="top-center" />
+        <main className="min-h-screen">
+          <Suspense fallback={<LoadingFallback />}>
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/register" element={<AuthPage />} />
@@ -160,6 +174,17 @@ function App() {
             <Route path="/profile/edit" element={<EditProfile />} />
             <Route path="/company/register" element={<CompanyRegister />} />
             <Route path="/company/login" element={<CompanyLogin />} />
+            <Route path="/employer/dashboard" element={
+              <EmployerProtectedRoute>
+                <EmployerDashboard />
+              </EmployerProtectedRoute>
+            } />
+            <Route path="/employer/team" element={
+              <EmployerProtectedRoute>
+                <EmployerDashboard initialTab="Team Management" />
+              </EmployerProtectedRoute>
+            } />
+            <Route path="/employer/accept-invite" element={<AcceptInvite />} />
             <Route path="/activate-admin" element={<ActivateAdmin />} />
             <Route path="/company/verify-email/:token" element={<CompanyVerifyEmail />} />
 
@@ -259,6 +284,7 @@ function App() {
           </Routes>
         </Suspense>
       </main>
+     </LenisProvider>
     </Router>
   )
 }
