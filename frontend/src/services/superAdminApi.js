@@ -127,3 +127,34 @@ export const getAuditLogById = async (id) => {
   const response = await superAdminAPI.get(`/audit/${id}`);
   return response.data;
 };
+
+// Plans Management Endpoints
+export const getPlans = async () => {
+  const response = await superAdminAPI.get('/plans');
+  return response.data;
+};
+
+export const createPlan = async (planData) => {
+  const response = await superAdminAPI.post('/plans', planData);
+  return response.data;
+};
+
+export const updatePlan = async (id, planData) => {
+  const response = await superAdminAPI.put(`/plans/${id}`, planData);
+  return response.data;
+};
+
+export const togglePlanActive = async (id, isActive) => {
+  const response = await superAdminAPI.patch(`/plans/${id}/toggle`, { is_active: isActive });
+  return response.data;
+};
+
+export const deletePlan = async (id) => {
+  const response = await superAdminAPI.delete(`/plans/${id}`);
+  return response.data;
+};
+
+export const getPlanStats = async () => {
+  const response = await superAdminAPI.get('/plans/stats');
+  return response.data;
+};

@@ -116,6 +116,28 @@ exports.inviteTeamMember = async (req, res) => {
       });
     }
 
+    // Check plan limits for team member invites
+    const Plan = require("../models/Plan");
+    let plan = null;
+    if (company.plan_id) {
+      plan = await Plan.findById(company.plan_id);
+    } else {
+      plan = await Plan.findOne({ plan_type: "free" });
+    }
+
+    if (plan && plan.limits && plan.limits.team_members !== -1) {
+      const activeTeamMembersCount = await CompanyTeamMember.countDocuments({
+        company_id: company._id,
+        status: { $in: ["active", "pending"] },
+      });
+      if (activeTeamMembersCount >= plan.limits.team_members) {
+        return res.status(403).json({
+          success: false,
+          message: `Team size limit exceeded. Your current plan "${plan.plan_name}" only allows up to ${plan.limits.team_members} team members. Please upgrade your plan.`
+        });
+      }
+    }
+
     // Check if duplicate invitation in the same company
     const existingMember = await CompanyTeamMember.findOne({
       company_id: company._id,

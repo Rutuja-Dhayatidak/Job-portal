@@ -48,14 +48,29 @@ const EmployerDashboard = ({ initialTab = 'Dashboard' }) => {
   const [company, setCompany] = useState({});
 
   useEffect(() => {
-    try {
-      const storedUser = localStorage.getItem('user');
-      const storedCompany = localStorage.getItem('company');
-      if (storedUser) setUser(JSON.parse(storedUser));
-      if (storedCompany) setCompany(JSON.parse(storedCompany));
-    } catch (e) {
-      console.error(e);
-    }
+    const fetchLiveProfile = async () => {
+      try {
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) setUser(JSON.parse(storedUser));
+
+        // Fetch live profile to stay sync'd on subscription status and limits
+        const res = await API.get('/employer/profile');
+        if (res.data && res.data.success) {
+          setCompany(res.data.company || {});
+          setUser(res.data.user || {});
+          localStorage.setItem('company', JSON.stringify(res.data.company || {}));
+          localStorage.setItem('user', JSON.stringify(res.data.user || {}));
+        } else {
+          const storedCompany = localStorage.getItem('company');
+          if (storedCompany) setCompany(JSON.parse(storedCompany));
+        }
+      } catch (err) {
+        console.error("Failed to sync live employer profile:", err);
+        const storedCompany = localStorage.getItem('company');
+        if (storedCompany) setCompany(JSON.parse(storedCompany));
+      }
+    };
+    fetchLiveProfile();
   }, []);
 
   const hasPermission = (permission) => {
@@ -119,6 +134,21 @@ const EmployerDashboard = ({ initialTab = 'Dashboard' }) => {
     e.preventDefault();
     if (!jobForm.title || !jobForm.department || !jobForm.description) {
       return toast.error("Please fill in the Job Title, Department, and Description.");
+    }
+
+    // Enforce subscription plan job post limits
+    let planName = "Free Trial";
+    let jobLimit = 2; // Default Free Trial limit
+    if (company && company.plan_id) {
+      const plan = company.plan_id;
+      planName = plan.plan_name || "Free Trial";
+      jobLimit = plan.limits?.job_posts ?? 2;
+    }
+
+    if (jobLimit !== -1) {
+      if (jobs.length >= jobLimit) {
+        return toast.error(`Job limit reached! Your current plan "${planName}" only allows up to ${jobLimit} job postings. Please upgrade your plan to post more.`);
+      }
     }
 
     const newJob = {

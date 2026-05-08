@@ -132,6 +132,7 @@ const AuditLogs = () => {
             <option value="companies">Companies</option>
             <option value="admins">Admins</option>
             <option value="rbac">RBAC</option>
+            <option value="plans">Plans</option>
           </select>
         </div>
 

@@ -5,7 +5,20 @@ const Job = require('../models/Job');
 exports.getProfile = async (req, res) => {
   try {
     const user = await Candidate.findById(req.user.id).select('-password');
-    const company = await Company.findOne({ owner_user_id: req.user.id });
+    let company = await Company.findOne({ owner_user_id: req.user.id }).populate('plan_id');
+    if (company && !company.plan_id) {
+      const Plan = require('../models/Plan');
+      const freePlan = await Plan.findOne({ plan_type: "free" });
+      if (freePlan) {
+        company.plan_id = freePlan._id;
+        company.plan_type = "free";
+        company.plan_started_at = new Date();
+        company.plan_expires_at = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000); // 14-day free trial
+        company.plan_status = "active";
+        await company.save();
+        company = await Company.findById(company._id).populate('plan_id');
+      }
+    }
     res.json({ success: true, user, company });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

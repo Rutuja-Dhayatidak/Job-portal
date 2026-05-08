@@ -39,6 +39,7 @@ const AdminJobs = lazy(() => import('./SuperAdmin/pages/Jobs'))
 const AdminManagement = lazy(() => import('./SuperAdmin/pages/AdminManagement'))
 const AdminRBAC = lazy(() => import('./SuperAdmin/pages/RBAC'))
 const AdminAuditLogs = lazy(() => import('./SuperAdmin/pages/AuditLogs'))
+const AdminPlans = lazy(() => import('./SuperAdmin/pages/Plans'))
 
 // Platform Admin Components
 const PlatformAdminLayout = lazy(() => import('./AdminPanel/layout/AdminLayout'))
@@ -201,6 +202,7 @@ function App() {
               <Route path="jobs" element={<AdminJobs />} />
               <Route path="rbac" element={<AdminRBAC />} />
               <Route path="audit" element={<AdminAuditLogs />} />
+              <Route path="plans" element={<AdminPlans />} />
             </Route>
 
             {/* Platform Admin Routes */}

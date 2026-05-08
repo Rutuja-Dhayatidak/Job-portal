@@ -31,6 +31,15 @@ router.put("/companies/:id/verify", logAction("companies", "APPROVE"), superAdmi
 router.get("/jobs", superAdminController.getJobs);
 router.put("/jobs/:id/status", logAction("jobs", "UPDATE"), superAdminController.updateJobStatus);
 
+// Plans Management
+const plansController = require("../controllers/plansController");
+router.get("/plans", plansController.getPlans);
+router.post("/plans", logAction("plans", "CREATE"), plansController.createPlan);
+router.put("/plans/:id", logAction("plans", "UPDATE"), plansController.updatePlan);
+router.patch("/plans/:id/toggle", logAction("plans", "TOGGLE_ACTIVE"), plansController.togglePlanActive);
+router.delete("/plans/:id", logAction("plans", "DELETE"), plansController.deletePlan);
+router.get("/plans/stats", plansController.getStats);
+
 // RBAC Management
 router.use("/rbac", require("./rbacRoutes"));
 

@@ -67,7 +67,14 @@ const companySchema = new mongoose.Schema({
     google_presence: { type: Boolean, default: null },
     no_duplicates: { type: Boolean, default: null },
     logo_verified: { type: Boolean, default: null }
-  }
+  },
+
+  // Plan integration fields
+  plan_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Plan', default: null },
+  plan_type: { type: String, enum: ["free", "basic", "pro", "enterprise"], default: "free" },
+  plan_started_at: { type: Date, default: null },
+  plan_expires_at: { type: Date, default: null },
+  plan_status: { type: String, enum: ["active", "inactive", "expired"], default: "inactive" }
 }, { timestamps: true });
 
 module.exports = mongoose.model("Company", companySchema);

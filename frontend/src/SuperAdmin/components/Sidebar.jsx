@@ -15,7 +15,8 @@ import {
   Menu,
   X,
   Lock,
-  Activity
+  Activity,
+  Layers
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -29,6 +30,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
     { name: 'RBAC', icon: <ShieldCheck size={20} />, path: '/super-admin/rbac' },
     { name: 'Companies', icon: <Building2 size={20} />, path: '/super-admin/companies' },
     { name: 'Jobs', icon: <Briefcase size={20} />, path: '/super-admin/jobs' },
+    { name: 'Plans', icon: <Layers size={20} />, path: '/super-admin/plans' },
     { name: 'Audit Logs', icon: <Activity size={20} />, path: '/super-admin/audit' },
   ];
 
