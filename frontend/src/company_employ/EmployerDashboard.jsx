@@ -31,17 +31,21 @@ import {
   MessageSquare,
   HelpCircle,
   MoreVertical,
-  ChevronDown
+  ChevronDown,
+  CreditCard,
+  Menu
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import API from '../services/axios';
 import TeamManagement from './TeamManagement';
+import BillingPlans from '../employer/pages/BillingPlans';
 
 const EmployerDashboard = ({ initialTab = 'Dashboard' }) => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(initialTab);
   const [loading, setLoading] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   // Local storage profile info
   const [user, setUser] = useState({});
@@ -666,303 +670,196 @@ const EmployerDashboard = ({ initialTab = 'Dashboard' }) => {
       `}</style>
 
       {/* 1. LEFT SIDEBAR (Compact Ultra-Premium dark navy workspace) */}
-      <aside className="w-72 bg-[#0a1120] text-slate-300 flex flex-col justify-between sticky top-0 h-screen z-30 shadow-[4px_0_40px_rgba(10,17,32,0.12)] overflow-y-auto custom-sidebar-scroll">
+      <aside className={`${isSidebarOpen ? 'w-72' : 'w-20'} bg-[#0a1120] text-slate-300 flex flex-col justify-between sticky top-0 h-screen z-30 shadow-[4px_0_40px_rgba(10,17,32,0.12)] overflow-y-auto custom-sidebar-scroll transition-all duration-300`}>
         <div className="flex flex-col flex-1">
 
           {/* Brand Logo Card Box */}
           <div className="p-4 bg-white/95 backdrop-blur border border-slate-100/10 shadow-[0_4px_20px_rgba(0,0,0,0.15)] mx-4 mt-5 rounded-2xl transition-all duration-300 hover:scale-[1.02]">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-tr from-[#f59e0b] to-[#fbbf24] rounded-xl flex items-center justify-center text-white font-extrabold text-lg shadow-lg shadow-amber-500/10">
+            <div className={`flex items-center ${isSidebarOpen ? 'gap-3' : 'justify-center'}`}>
+              <div className="w-10 h-10 bg-gradient-to-tr from-[#f59e0b] to-[#fbbf24] rounded-xl flex items-center justify-center text-white font-extrabold text-lg shadow-lg shadow-amber-500/10 flex-shrink-0">
                 N
               </div>
-              <div>
-                <span className="text-[#0a1120] text-[15px] font-black tracking-tight block">NextHire.in</span>
-                <span className="text-[9px] text-[#fbbf24] font-black uppercase tracking-widest block -mt-1">Corporate Suite</span>
-              </div>
+              {isSidebarOpen && (
+                <div>
+                  <span className="text-[#0a1120] text-[15px] font-black tracking-tight block">NextHire.in</span>
+                  <span className="text-[9px] text-[#fbbf24] font-black uppercase tracking-widest block -mt-1">Corporate Suite</span>
+                </div>
+              )}
             </div>
           </div>
 
           {/* Company Selector Header Box */}
-          <div className="mt-4 mx-4 bg-[#111c34] p-3.5 rounded-2xl flex items-center justify-between border border-slate-700/30 cursor-pointer hover:bg-[#182645] transition-all duration-200 shadow-sm">
+          <div className={`mt-4 mx-4 bg-[#111c34] p-3.5 rounded-2xl flex items-center justify-between border border-slate-700/30 cursor-pointer hover:bg-[#182645] transition-all duration-200 shadow-sm ${isSidebarOpen ? '' : 'justify-center'}`}>
             <div className="flex items-center gap-3 overflow-hidden">
-              <div className="w-8 h-8 bg-gradient-to-tr from-blue-600 to-indigo-500 rounded-xl flex items-center justify-center text-xs font-black text-amber-300 shadow-sm">
+              <div className="w-8 h-8 bg-gradient-to-tr from-blue-600 to-indigo-500 rounded-xl flex items-center justify-center text-xs font-black text-amber-300 shadow-sm flex-shrink-0">
                 {companyForm.name ? companyForm.name.charAt(0) : 'W'}
               </div>
-              <span className="text-xs font-bold text-slate-100 truncate">
-                {companyForm.name || 'WorknAI pvt .limited'}
-              </span>
+              {isSidebarOpen && (
+                <span className="text-xs font-bold text-slate-100 truncate">
+                  {companyForm.name || 'WorknAI pvt .limited'}
+                </span>
+              )}
             </div>
-            <ChevronDown size={14} className="text-slate-400" />
+            {isSidebarOpen && <ChevronDown size={14} className="text-slate-400 flex-shrink-0" />}
           </div>
 
-          {/* Navigation Links Grouped (Tightly spaced so they fit beautifully on laptop screens without needing scroll bars!) */}
+          {/* Dynamic Sidebar Sections Menu Loop */}
           <div className="px-3 pt-5 space-y-5 pb-6">
+            {(() => {
+              const sidebarSections = [
+                {
+                  id: 'overview',
+                  title: 'Overview',
+                  items: [
+                    { id: 'Dashboard', name: 'Dashboard', icon: Building2 },
+                    { id: 'Notifications', name: 'Notifications', icon: Bell, badge: 12, badgeColor: 'bg-[#e74c3c]' },
+                    { id: 'Chat', name: 'Chat', icon: MessageSquare, badge: 2, badgeColor: 'bg-[#2ecc71]' }
+                  ]
+                },
+                {
+                  id: 'hirings',
+                  title: 'Manage Hirings',
+                  items: [
+                    { id: 'Create Job', name: 'Post a Job', icon: PlusCircle, check: () => hasPermission('create_jobs') || hasPermission('manage_jobs') },
+                    { id: 'My Job Posts', name: 'My Job Posts', icon: Briefcase, check: () => hasPermission('view_jobs') || hasPermission('manage_jobs') },
+                    { id: 'Applicants', name: 'Applicants', icon: Users, check: () => hasPermission('view_candidates') || hasPermission('review_candidates') },
+                    { id: 'Interviews', name: 'Interviews', icon: Calendar, check: () => hasPermission('schedule_interviews') || hasPermission('conduct_interviews') },
+                    { id: 'My Services', name: 'My Services', icon: CheckCircle2, check: () => hasPermission('manage_billing') }
+                  ]
+                },
+                {
+                  id: 'hr_admin',
+                  title: 'HR Administration',
+                  check: () => user.team_role === 'hr_admin' || user.role === 'hr_admin',
+                  items: [
+                    { id: 'Employee Management', name: 'Employee Management', icon: UserCheck },
+                    { id: 'HR Documents', name: 'HR Documents', icon: UserCheck },
+                    { id: 'Leave Policies', name: 'Leave Policies', icon: UserCheck },
+                    { id: 'Payroll Overview', name: 'Payroll Overview', icon: UserCheck },
+                    { id: 'Compliance', name: 'Compliance', icon: UserCheck },
+                    { id: 'Analytics', name: 'Analytics', icon: UserCheck }
+                  ]
+                },
+                {
+                  id: 'recruitment',
+                  title: 'Recruitment Coord',
+                  check: () => user.team_role === 'recruitment_coordinator' || user.role === 'recruitment_coordinator',
+                  items: [
+                    { id: 'Candidate Pipeline', name: 'Candidate Pipeline', icon: Briefcase },
+                    { id: 'Applications', name: 'Applications', icon: Briefcase },
+                    { id: 'Recruitment Reports', name: 'Recruitment Reports', icon: Briefcase }
+                  ]
+                },
+                {
+                  id: 'interview',
+                  title: 'Interview Coord',
+                  check: () => user.team_role === 'interview_coordinator' || user.role === 'interview_coordinator',
+                  items: [
+                    { id: 'Panel Coordination', name: 'Panel Coordination', icon: Calendar },
+                    { id: 'Interview Slots', name: 'Interview Slots', icon: Calendar },
+                    { id: 'Feedback Collection', name: 'Feedback Collection', icon: Calendar }
+                  ]
+                },
+                {
+                  id: 'onboarding',
+                  title: 'Onboarding Management',
+                  check: () => user.team_role === 'onboarding_manager' || user.role === 'onboarding_manager',
+                  items: [
+                    { id: 'Onboarding Process', name: 'Onboarding Process', icon: UserCheck },
+                    { id: 'Offer Letters', name: 'Offer Letters', icon: UserCheck },
+                    { id: 'Document Collection', name: 'Document Collection', icon: UserCheck },
+                    { id: 'New Hire Tracker', name: 'New Hire Tracker', icon: UserCheck },
+                    { id: 'Onboarding Checklist', name: 'Onboarding Checklist', icon: UserCheck }
+                  ]
+                },
+                {
+                  id: 'settings',
+                  title: 'Settings',
+                  items: [
+                    { id: 'My Profile', name: 'My Profile', icon: Settings },
+                    { id: 'Team Management', name: 'Team Management', icon: Users, check: () => hasPermission('manage_team') },
+                    { id: 'Billing & Plans', name: 'Billing & Plans', icon: CreditCard },
+                    { id: 'Obligations', name: 'Obligations', icon: ShieldCheck }
+                  ]
+                }
+              ];
 
-            {/* Overview Links */}
-            <div>
-              <span className="text-[9px] font-black tracking-widest text-slate-500 uppercase block px-3.5 mb-2.5">Overview</span>
-              <div className="space-y-0.5">
-                <button
-                  onClick={() => setActiveTab('Dashboard')}
-                  className={`w-full py-2 px-3.5 rounded-xl flex items-center justify-between text-xs font-semibold transition-all text-left border-none cursor-pointer ${activeTab === 'Dashboard'
-                      ? 'bg-[#182645] text-[#fbbf24] font-black shadow-inner shadow-black/10'
-                      : 'bg-transparent text-slate-400 hover:text-white hover:bg-[#111c34]/50'
-                    }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <Building2 size={15} className={activeTab === 'Dashboard' ? 'text-[#fbbf24]' : 'text-slate-400'} />
-                    <span>Dashboard</span>
+              return sidebarSections.map((section) => {
+                if (section.check && !section.check()) return null;
+
+                const visibleItems = section.items.filter(item => !item.check || item.check());
+                if (visibleItems.length === 0) return null;
+
+                return (
+                  <div key={section.id} className="space-y-1.5">
+                    {isSidebarOpen && (
+                      <span className="text-[9px] font-black tracking-widest text-slate-500 uppercase block px-3.5 mb-2.5 pl-1">
+                        {section.title}
+                      </span>
+                    )}
+                    <div className="space-y-0.5">
+                      {visibleItems.map((item) => {
+                        const Icon = item.icon;
+                        const isActive = activeTab === item.id;
+                        return (
+                          <button
+                            key={item.id}
+                            onClick={() => setActiveTab(item.id)}
+                            className={`w-full py-2 rounded-xl flex items-center transition-all text-left border-none cursor-pointer ${isSidebarOpen ? 'px-3.5 gap-3 text-xs' : 'justify-center'
+                              } ${isActive
+                                ? 'bg-[#182645] text-[#fbbf24] font-black shadow-inner shadow-black/10'
+                                : 'bg-transparent text-slate-400 hover:text-white hover:bg-[#111c34]/50'
+                              }`}
+                            title={!isSidebarOpen ? item.name : ''}
+                          >
+                            <Icon
+                              size={15}
+                              className={`${isActive ? 'text-[#fbbf24]' : 'text-slate-400'} flex-shrink-0`}
+                            />
+                            {isSidebarOpen && <span className="truncate">{item.name}</span>}
+                            {isSidebarOpen && item.badge && (
+                              <span className={`ml-auto ${item.badgeColor || 'bg-blue-500'} text-white text-[8px] font-black px-2 py-0.5 rounded-full`}>
+                                {String(item.badge).padStart(2, '0')}
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
-                </button>
+                );
+              });
+            })()}
 
-                <button
-                  onClick={() => setActiveTab('Notifications')}
-                  className={`w-full py-2 px-3.5 rounded-xl flex items-center justify-between text-xs font-semibold transition-all text-left border-none cursor-pointer ${activeTab === 'Notifications'
-                      ? 'bg-[#182645] text-[#fbbf24] font-black shadow-inner shadow-black/10'
-                      : 'bg-transparent text-slate-400 hover:text-white hover:bg-[#111c34]/50'
-                    }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <Bell size={15} className={activeTab === 'Notifications' ? 'text-[#fbbf24]' : 'text-slate-400'} />
-                    <span>Notifications</span>
-                  </div>
-                  <span className="bg-[#e74c3c] text-white text-[8px] font-black px-2 py-0.5 rounded-full">12</span>
-                </button>
-
-                <button
-                  onClick={() => setActiveTab('Chat')}
-                  className={`w-full py-2 px-3.5 rounded-xl flex items-center justify-between text-xs font-semibold transition-all text-left border-none cursor-pointer ${activeTab === 'Chat'
-                      ? 'bg-[#182645] text-[#fbbf24] font-black shadow-inner shadow-black/10'
-                      : 'bg-transparent text-slate-400 hover:text-white hover:bg-[#111c34]/50'
-                    }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <MessageSquare size={15} className={activeTab === 'Chat' ? 'text-[#fbbf24]' : 'text-slate-400'} />
-                    <span>Chat</span>
-                  </div>
-                  <span className="bg-[#2ecc71] text-white text-[8px] font-black px-2 py-0.5 rounded-full">02</span>
-                </button>
-              </div>
+            {/* Standalone Collapsible Logout Button */}
+            <div className="pt-2 border-t border-slate-800/40">
+              <button
+                onClick={handleLogout}
+                className={`w-full py-2.5 rounded-xl flex items-center transition-all text-left border-none cursor-pointer bg-transparent text-slate-400 hover:text-red-400 hover:bg-red-950/20 ${isSidebarOpen ? 'px-3.5 gap-3 text-xs' : 'justify-center'
+                  }`}
+                title={!isSidebarOpen ? 'Logout' : ''}
+              >
+                <LogOut size={15} className="text-slate-400 flex-shrink-0" />
+                {isSidebarOpen && <span>Logout</span>}
+              </button>
             </div>
-
-            {/* Manage Hirings Links */}
-            <div>
-              <span className="text-[9px] font-black tracking-widest text-slate-500 uppercase block px-3.5 mb-2.5">Manage Hirings</span>
-              <div className="space-y-0.5">
-                {(hasPermission('create_jobs') || hasPermission('manage_jobs')) && (
-                  <button
-                    onClick={() => setActiveTab('Create Job')}
-                    className={`w-full py-2 px-3.5 rounded-none flex items-center gap-3 text-xs font-semibold transition-all text-left border-none cursor-pointer ${activeTab === 'Create Job'
-                        ? 'bg-[#182645] text-[#fbbf24] font-black shadow-inner shadow-black/10'
-                        : 'bg-transparent text-slate-400 hover:text-white hover:bg-[#111c34]/50'
-                      }`}
-                  >
-                    <PlusCircle size={15} className={activeTab === 'Create Job' ? 'text-[#fbbf24]' : 'text-slate-400'} />
-                    <span>Post a Job</span>
-                  </button>
-                )}
-
-                {(hasPermission('view_jobs') || hasPermission('manage_jobs')) && (
-                  <button
-                    onClick={() => setActiveTab('My Job Posts')}
-                    className={`w-full py-2 px-3.5 rounded-none flex items-center gap-3 text-xs font-semibold transition-all text-left border-none cursor-pointer ${activeTab === 'My Job Posts'
-                        ? 'bg-[#182645] text-[#fbbf24] font-black shadow-inner shadow-black/10'
-                        : 'bg-transparent text-slate-400 hover:text-white hover:bg-[#111c34]/50'
-                      }`}
-                  >
-                    <Briefcase size={15} className={activeTab === 'My Job Posts' ? 'text-[#fbbf24]' : 'text-slate-400'} />
-                    <span>My Job Posts</span>
-                  </button>
-                )}
-
-                {(hasPermission('view_candidates') || hasPermission('review_candidates')) && (
-                  <button
-                    onClick={() => setActiveTab('Applicants')}
-                    className={`w-full py-2 px-3.5 rounded-none flex items-center gap-3 text-xs font-semibold transition-all text-left border-none cursor-pointer ${activeTab === 'Applicants'
-                        ? 'bg-[#182645] text-[#fbbf24] font-black shadow-inner shadow-black/10'
-                        : 'bg-transparent text-slate-400 hover:text-white hover:bg-[#111c34]/50'
-                      }`}
-                  >
-                    <Users size={15} className={activeTab === 'Applicants' ? 'text-[#fbbf24]' : 'text-slate-400'} />
-                    <span>Applicants</span>
-                  </button>
-                )}
-
-                {(hasPermission('schedule_interviews') || hasPermission('conduct_interviews')) && (
-                  <button
-                    onClick={() => setActiveTab('Interviews')}
-                    className={`w-full py-2 px-3.5 rounded-none flex items-center gap-3 text-xs font-semibold transition-all text-left border-none cursor-pointer ${activeTab === 'Interviews'
-                        ? 'bg-[#182645] text-[#fbbf24] font-black shadow-inner shadow-black/10'
-                        : 'bg-transparent text-slate-400 hover:text-white hover:bg-[#111c34]/50'
-                      }`}
-                  >
-                    <Calendar size={15} className={activeTab === 'Interviews' ? 'text-[#fbbf24]' : 'text-slate-400'} />
-                    <span>Interviews</span>
-                  </button>
-                )}
-
-                {hasPermission('manage_billing') && (
-                  <button
-                    onClick={() => setActiveTab('My Services')}
-                    className={`w-full py-2 px-3.5 rounded-none flex items-center gap-3 text-xs font-semibold transition-all text-left border-none cursor-pointer ${activeTab === 'My Services'
-                        ? 'bg-[#182645] text-[#fbbf24] font-black shadow-inner shadow-black/10'
-                        : 'bg-transparent text-slate-400 hover:text-white hover:bg-[#111c34]/50'
-                      }`}
-                  >
-                    <CheckCircle2 size={15} className={activeTab === 'My Services' ? 'text-[#fbbf24]' : 'text-slate-400'} />
-                    <span>My Services</span>
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* HR Admin Section */}
-            {(user.team_role === 'hr_admin' || user.role === 'hr_admin') && (
-              <div>
-                <span className="text-[9px] font-black tracking-widest text-slate-500 uppercase block px-3.5 mb-2.5">HR Administration</span>
-                <div className="space-y-0.5">
-                  {['Employee Management', 'HR Documents', 'Leave Policies', 'Payroll Overview', 'Compliance', 'Analytics'].map((subTab) => (
-                    <button
-                      key={subTab}
-                      onClick={() => setActiveTab(subTab)}
-                      className={`w-full py-2 px-3.5 rounded-none flex items-center gap-3 text-xs font-semibold transition-all text-left border-none cursor-pointer ${activeTab === subTab
-                          ? 'bg-[#182645] text-[#fbbf24] font-black shadow-inner shadow-black/10'
-                          : 'bg-transparent text-slate-400 hover:text-white hover:bg-[#111c34]/50'
-                        }`}
-                    >
-                      <UserCheck size={15} className={activeTab === subTab ? 'text-[#fbbf24]' : 'text-slate-400'} />
-                      <span>{subTab}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Recruitment Coordinator Section */}
-            {(user.team_role === 'recruitment_coordinator' || user.role === 'recruitment_coordinator') && (
-              <div>
-                <span className="text-[9px] font-black tracking-widest text-slate-500 uppercase block px-3.5 mb-2.5">Recruitment Coord</span>
-                <div className="space-y-0.5">
-                  {['Candidate Pipeline', 'Applications', 'Recruitment Reports'].map((subTab) => (
-                    <button
-                      key={subTab}
-                      onClick={() => setActiveTab(subTab)}
-                      className={`w-full py-2 px-3.5 rounded-none flex items-center gap-3 text-xs font-semibold transition-all text-left border-none cursor-pointer ${activeTab === subTab
-                          ? 'bg-[#182645] text-[#fbbf24] font-black shadow-inner shadow-black/10'
-                          : 'bg-transparent text-slate-400 hover:text-white hover:bg-[#111c34]/50'
-                        }`}
-                    >
-                      <Briefcase size={15} className={activeTab === subTab ? 'text-[#fbbf24]' : 'text-slate-400'} />
-                      <span>{subTab}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Interview Coordinator Section */}
-            {(user.team_role === 'interview_coordinator' || user.role === 'interview_coordinator') && (
-              <div>
-                <span className="text-[9px] font-black tracking-widest text-slate-500 uppercase block px-3.5 mb-2.5">Interview Coord</span>
-                <div className="space-y-0.5">
-                  {['Panel Coordination', 'Interview Slots', 'Feedback Collection'].map((subTab) => (
-                    <button
-                      key={subTab}
-                      onClick={() => setActiveTab(subTab)}
-                      className={`w-full py-2 px-3.5 rounded-none flex items-center gap-3 text-xs font-semibold transition-all text-left border-none cursor-pointer ${activeTab === subTab
-                          ? 'bg-[#182645] text-[#fbbf24] font-black shadow-inner shadow-black/10'
-                          : 'bg-transparent text-slate-400 hover:text-white hover:bg-[#111c34]/50'
-                        }`}
-                    >
-                      <Calendar size={15} className={activeTab === subTab ? 'text-[#fbbf24]' : 'text-slate-400'} />
-                      <span>{subTab}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Onboarding Manager Section */}
-            {(user.team_role === 'onboarding_manager' || user.role === 'onboarding_manager') && (
-              <div>
-                <span className="text-[9px] font-black tracking-widest text-slate-500 uppercase block px-3.5 mb-2.5">Onboarding Management</span>
-                <div className="space-y-0.5">
-                  {['Onboarding Process', 'Offer Letters', 'Document Collection', 'New Hire Tracker', 'Onboarding Checklist'].map((subTab) => (
-                    <button
-                      key={subTab}
-                      onClick={() => setActiveTab(subTab)}
-                      className={`w-full py-2 px-3.5 rounded-none flex items-center gap-3 text-xs font-semibold transition-all text-left border-none cursor-pointer ${activeTab === subTab
-                          ? 'bg-[#182645] text-[#fbbf24] font-black shadow-inner shadow-black/10'
-                          : 'bg-transparent text-slate-400 hover:text-white hover:bg-[#111c34]/50'
-                        }`}
-                    >
-                      <UserCheck size={15} className={activeTab === subTab ? 'text-[#fbbf24]' : 'text-slate-400'} />
-                      <span>{subTab}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Settings Section Links */}
-            <div>
-              <span className="text-[9px] font-black tracking-widest text-slate-500 uppercase block px-3.5 mb-2.5">Settings</span>
-              <div className="space-y-0.5">
-                <button
-                  onClick={() => setActiveTab('My Profile')}
-                  className={`w-full py-2 px-3.5 rounded-none flex items-center gap-3 text-xs font-semibold transition-all text-left border-none cursor-pointer ${activeTab === 'My Profile'
-                      ? 'bg-[#182645] text-[#fbbf24] font-black shadow-inner shadow-black/10'
-                      : 'bg-transparent text-slate-400 hover:text-white hover:bg-[#111c34]/50'
-                    }`}
-                >
-                  <Settings size={15} className={activeTab === 'My Profile' ? 'text-[#fbbf24]' : 'text-slate-400'} />
-                  <span>My Profile</span>
-                </button>
-
-                {hasPermission('manage_team') && (
-                  <button
-                    onClick={() => setActiveTab('Team Management')}
-                    className={`w-full py-2 px-3.5 rounded-none flex items-center gap-3 text-xs font-semibold transition-all text-left border-none cursor-pointer ${activeTab === 'Team Management'
-                        ? 'bg-[#182645] text-[#fbbf24] font-black shadow-inner shadow-black/10'
-                        : 'bg-transparent text-slate-400 hover:text-white hover:bg-[#111c34]/50'
-                      }`}
-                  >
-                    <Users size={15} className={activeTab === 'Team Management' ? 'text-[#fbbf24]' : 'text-slate-400'} />
-                    <span>Team Management</span>
-                  </button>
-                )}
-
-                <button
-                  onClick={() => setActiveTab('Obligations')}
-                  className={`w-full py-2 px-3.5 rounded-none flex items-center gap-3 text-xs font-semibold transition-all text-left border-none cursor-pointer ${activeTab === 'Obligations'
-                      ? 'bg-[#182645] text-[#fbbf24] font-black shadow-inner shadow-black/10'
-                      : 'bg-transparent text-slate-400 hover:text-white hover:bg-[#111c34]/50'
-                    }`}
-                >
-                  <ShieldCheck size={15} className={activeTab === 'Obligations' ? 'text-[#fbbf24]' : 'text-slate-400'} />
-                  <span>Obligations</span>
-                </button>
-
-                <button
-                  onClick={handleLogout}
-                  className="w-full py-2 px-3.5 rounded-xl flex items-center gap-3 text-xs font-semibold transition-all text-left border-none cursor-pointer bg-transparent text-slate-400 hover:text-red-400 hover:bg-red-950/20"
-                >
-                  <LogOut size={15} className="text-slate-400" />
-                  <span>Logout</span>
-                </button>
-              </div>
-            </div>
-
           </div>
+
         </div>
 
         {/* Try Demo & Help sticky footer */}
-        <div className="p-4 border-t border-[#1a2b49] bg-[#070c18] flex items-center justify-between text-xs text-slate-400 font-bold sticky bottom-0 z-20">
-          <span className="hover:text-white cursor-pointer transition-all">Try Demo</span>
-          <span className="hover:text-white cursor-pointer transition-all flex items-center gap-1.5">
-            <HelpCircle size={13} />
-            Need Help?
-          </span>
+        <div className={`p-4 border-t border-[#1a2b49] bg-[#070c18] flex items-center justify-between text-xs text-slate-400 font-bold sticky bottom-0 z-20 ${isSidebarOpen ? '' : 'justify-center'}`}>
+          {isSidebarOpen ? (
+            <>
+              <span className="hover:text-white cursor-pointer transition-all">Try Demo</span>
+              <span className="hover:text-white cursor-pointer transition-all flex items-center gap-1.5">
+                <HelpCircle size={13} />
+                Need Help?
+              </span>
+            </>
+          ) : (
+            <HelpCircle size={15} className="hover:text-white cursor-pointer transition-all" title="Need Help?" />
+          )}
         </div>
       </aside>
 
@@ -970,8 +867,18 @@ const EmployerDashboard = ({ initialTab = 'Dashboard' }) => {
       <div className="flex-1 flex flex-col h-screen overflow-y-auto">
 
         {/* PREMIUM TOP HEADER */}
-        <header className="h-20 bg-white/95 backdrop-blur-md px-8 flex items-center justify-between sticky top-0 z-20 shadow-[0_4px_30px_rgba(15,23,42,0.03)] border-b border-slate-100">
-          <div className="flex items-center gap-2">
+        <header className="h-20 bg-white/95 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-20 shadow-[0_4px_30px_rgba(15,23,42,0.03)] border-b border-slate-100">
+          <div className="flex items-center gap-3.5">
+            {/* Elegant Sidebar Collapse/Expand Trigger */}
+            <button
+              type="button"
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="p-2.5 bg-slate-50 hover:bg-slate-100 text-[#0a1120] border border-slate-200/60 rounded-xl transition-all cursor-pointer hover:scale-105 active:scale-95 flex items-center justify-center shadow-sm"
+              title={isSidebarOpen ? "Collapse Sidebar" : "Expand Sidebar"}
+            >
+              <Menu size={16} strokeWidth={2.5} />
+            </button>
+
             <h1 className="text-[19px] font-black text-[#0a1120] tracking-tight">{activeTab}</h1>
             <div className="hidden md:flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-[#0e693a] bg-emerald-50 border border-emerald-100 px-2.5 py-0.5 rounded-lg ml-3">
               <ShieldCheck size={11} className="text-emerald-600" />
@@ -1527,6 +1434,11 @@ const EmployerDashboard = ({ initialTab = 'Dashboard' }) => {
                 <div className="bg-white border border-slate-100 rounded-none p-6 space-y-5 shadow-sm animate-fadeIn">
                   <TeamManagement />
                 </div>
+              )}
+
+              {/* TAB 10: BILLING & PLANS */}
+              {activeTab === 'Billing & Plans' && (
+                <BillingPlans company={company} setCompany={setCompany} />
               )}
 
               {/* DYNAMIC NEW ROLE CUSTOM VIEWS */}

@@ -45,7 +45,8 @@ exports.createAdmin = async (req, res) => {
       'Trust & Safety': ['VIEW_REPORTS', 'REVIEW_REPORT', 'BAN_USER', 'WARN_USER', 'APPROVE_JOB', 'REJECT_JOB'],
       'Platform Admin': ['VIEW_USERS', 'VIEW_JOBS', 'VERIFY_COMPANY'],
       'Ops Admin': ['VIEW_USERS', 'VIEW_JOBS', 'VIEW_REPORTS'],
-      'Support Admin': ['VIEW_TICKETS', 'RESOLVE_TICKET']
+      'Support Admin': ['VIEW_TICKETS', 'RESOLVE_TICKET'],
+      'Sales Panel': ['VIEW_LEADS', 'MANAGE_SALES', 'VIEW_ANALYTICS']
     };
 
     // Create pending user

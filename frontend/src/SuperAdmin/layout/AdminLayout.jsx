@@ -15,12 +15,12 @@ const AdminLayout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] flex">
+    <div className="min-h-screen bg-[#f8fafc] flex font-ptserif">
       {/* Sidebar */}
       <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
-      
+
       {/* Main Content Area */}
-      <motion.div 
+      <motion.div
         initial={false}
         animate={{ marginLeft: isCollapsed ? '80px' : '280px' }}
         transition={sidebarTransition}

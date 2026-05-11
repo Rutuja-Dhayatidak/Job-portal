@@ -30,6 +30,9 @@ const RBAC = () => {
     if (role === 'Moderator') {
       return ['Dashboard', 'Reports', 'Users', 'Jobs', 'Activity Logs', 'Settings'];
     }
+    if (role === 'Sales Panel') {
+      return ['Dashboard', 'Leads Management', 'Employer Directory', 'Sales Pipeline', 'Deal Tracker', 'Analytics', 'Invoices', 'Reports', 'Settings'];
+    }
     // Default list
     return ['Candidates', 'Jobs', 'Companies', 'Payments', 'Reports', 'Support', 'Moderation', 'Settings'];
   };

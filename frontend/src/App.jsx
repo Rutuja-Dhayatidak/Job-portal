@@ -103,6 +103,24 @@ const SupportUsers = lazy(() => import('./SupportAdmin/Users'))
 const SupportFAQ = lazy(() => import('./SupportAdmin/FAQ'))
 const SupportSettings = lazy(() => import('./SupportAdmin/Settings'))
 
+// Sales Panel Components
+const SalesLayout = lazy(() => import('./sales-panel/layouts/SalesLayout'))
+const SalesProtectedRoute = lazy(() => import('./sales-panel/components/SalesProtectedRoute'))
+const SalesDashboard = lazy(() => import('./sales-panel/pages/Dashboard'))
+const SalesLeads = lazy(() => import('./sales-panel/pages/Leads'))
+const SalesAddLead = lazy(() => import('./sales-panel/pages/AddLead'))
+const SalesFollowUps = lazy(() => import('./sales-panel/pages/FollowUps'))
+const SalesCustomers = lazy(() => import('./sales-panel/pages/Customers'))
+const SalesTasks = lazy(() => import('./sales-panel/pages/Tasks'))
+const SalesAttendance = lazy(() => import('./sales-panel/pages/Attendance'))
+const SalesTarget = lazy(() => import('./sales-panel/pages/Target'))
+const SalesPerformance = lazy(() => import('./sales-panel/pages/Performance'))
+const SalesReports = lazy(() => import('./sales-panel/pages/Reports'))
+const SalesNotifications = lazy(() => import('./sales-panel/pages/Notifications'))
+const SalesProfile = lazy(() => import('./sales-panel/pages/Profile'))
+const SalesSettings = lazy(() => import('./sales-panel/pages/Settings'))
+const SalesNotFound = lazy(() => import('./sales-panel/pages/NotFound'))
+
 import { Toaster } from 'react-hot-toast'
 
 const LoadingFallback = () => (
@@ -183,6 +201,11 @@ function App() {
             <Route path="/employer/team" element={
               <EmployerProtectedRoute>
                 <EmployerDashboard initialTab="Team Management" />
+              </EmployerProtectedRoute>
+            } />
+            <Route path="/employer/billing-plans" element={
+              <EmployerProtectedRoute>
+                <EmployerDashboard initialTab="Billing & Plans" />
               </EmployerProtectedRoute>
             } />
             <Route path="/employer/accept-invite" element={<AcceptInvite />} />
@@ -282,6 +305,28 @@ function App() {
               <Route path="users" element={<SupportUsers />} />
               <Route path="faq" element={<SupportFAQ />} />
               <Route path="settings" element={<SupportSettings />} />
+            </Route>
+
+            {/* Sales CRM Panel Routes */}
+            <Route path="/sales" element={
+              <SalesProtectedRoute>
+                <SalesLayout />
+              </SalesProtectedRoute>
+            }>
+              <Route path="dashboard" element={<SalesDashboard />} />
+              <Route path="leads" element={<SalesLeads />} />
+              <Route path="add-lead" element={<SalesAddLead />} />
+              <Route path="followups" element={<SalesFollowUps />} />
+              <Route path="customers" element={<SalesCustomers />} />
+              <Route path="tasks" element={<SalesTasks />} />
+              <Route path="attendance" element={<SalesAttendance />} />
+              <Route path="targets" element={<SalesTarget />} />
+              <Route path="performance" element={<SalesPerformance />} />
+              <Route path="reports" element={<SalesReports />} />
+              <Route path="notifications" element={<SalesNotifications />} />
+              <Route path="profile" element={<SalesProfile />} />
+              <Route path="settings" element={<SalesSettings />} />
+              <Route path="*" element={<SalesNotFound />} />
             </Route>
           </Routes>
         </Suspense>

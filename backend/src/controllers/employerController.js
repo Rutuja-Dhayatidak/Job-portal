@@ -75,3 +75,53 @@ exports.updateSettings = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+exports.subscribeToPlan = async (req, res) => {
+  try {
+    const { planId } = req.body;
+    if (!planId) {
+      return res.status(400).json({ success: false, message: "Plan ID is required" });
+    }
+
+    const Plan = require('../models/Plan');
+    const plan = await Plan.findById(planId);
+    if (!plan) {
+      return res.status(404).json({ success: false, message: "Subscription plan not found" });
+    }
+
+    const company = await Company.findOne({ owner_user_id: req.user.id });
+    if (!company) {
+      return res.status(404).json({ success: false, message: "Company not found" });
+    }
+
+    // Determine validity days based on plan name/type
+    let validityDays = 30; // standard month
+    if (plan.plan_name.toLowerCase().includes('year') || plan.billing_cycle === 'yearly') {
+      validityDays = 365;
+    } else if (plan.plan_name.toLowerCase().includes('trial') || plan.plan_type === 'free') {
+      validityDays = 14;
+    } else if (plan.plan_type === 'enterprise') {
+      validityDays = 365; // enterprise defaults to 1 year
+    }
+
+    company.plan_id = plan._id;
+    company.plan_type = plan.plan_type;
+    company.plan_started_at = new Date();
+    company.plan_expires_at = new Date(Date.now() + validityDays * 24 * 60 * 60 * 1000);
+    company.plan_status = "active";
+
+    await company.save();
+
+    // Populate plan_id and return updated company
+    const updatedCompany = await Company.findById(company._id).populate('plan_id');
+
+    res.json({
+      success: true,
+      message: `Successfully subscribed to ${plan.plan_name}!`,
+      company: updatedCompany
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+

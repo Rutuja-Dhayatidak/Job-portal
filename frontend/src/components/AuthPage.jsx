@@ -66,6 +66,10 @@ const LandingView = ({ setView }) => {
         case 'moderator':
           navigate('/moderator/dashboard');
           break;
+        case 'sales':
+        case 'Sales Panel':
+          navigate('/sales/dashboard');
+          break;
         case 'candidate':
           navigate('/dashboard');
           break;

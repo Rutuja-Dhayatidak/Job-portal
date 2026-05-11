@@ -62,3 +62,25 @@ export const deleteTeamMemberApi = async (id) => {
   return response.data;
 };
 
+// --- SUBSCRIPTION & PLANS APIs ---
+
+export const getAllPlans = async () => {
+  const response = await API.get('/plans');
+  return response.data;
+};
+
+export const subscribeToPlan = async (planId) => {
+  const response = await API.post('/employer/subscribe', { planId });
+  return response.data;
+};
+
+export const createPaymentOrder = async (planId) => {
+  const response = await API.post('/payments/create-order', { planId });
+  return response.data;
+};
+
+export const verifyPaymentSignature = async (paymentDetails) => {
+  const response = await API.post('/payments/verify-payment', paymentDetails);
+  return response.data;
+};
+

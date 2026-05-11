@@ -25,7 +25,8 @@ const AdminManagement = () => {
     'Support Admin',
     'Trust & Safety',
     'Content Reviewer',
-    'Moderator'
+    'Moderator',
+    'Sales Panel'
   ];
 
   useEffect(() => {
@@ -237,7 +238,8 @@ const AdminManagement = () => {
                         'Support Admin': 'bg-purple-50 text-purple-600',
                         'Trust & Safety': 'bg-rose-50 text-rose-600',
                         'Moderator': 'bg-amber-50 text-amber-700',
-                        'Content Reviewer': 'bg-zinc-100 text-zinc-600'
+                        'Content Reviewer': 'bg-zinc-100 text-zinc-600',
+                        'Sales Panel': 'bg-yellow-50 text-yellow-700'
                       };
                       const colorClass = roleColors[admin.role] || 'bg-slate-50 text-slate-500';
                       return (

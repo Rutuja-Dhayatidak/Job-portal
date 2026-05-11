@@ -27,6 +27,9 @@ app.use("/api/company", require("./routes/companyRoutes"));
 app.use("/api/employer/team", require("./routes/employerTeamRoutes"));
 app.use("/api/employer", require("./routes/employerRoutes"));
 app.use("/api/profile", require("./routes/profileRoutes"));
+app.use("/api/plans", require("./routes/plansRoutes"));
+app.use("/api/payments", require("./routes/paymentRoutes"));
+app.use("/api/sales", require("./routes/salesRoutes"));
 
 app.get("/", (req, res) => {
   res.send("App is running...");

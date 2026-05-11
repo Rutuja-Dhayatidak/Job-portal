@@ -10,7 +10,8 @@ exports.seedRoles = async (req, res) => {
     "Support Admin",
     "Trust & Safety",
     "Content Reviewer",
-    "Moderator"
+    "Moderator",
+    "Sales Panel"
   ];
 
   try {
@@ -34,7 +35,8 @@ exports.getAllRoles = async (req, res) => {
     "Support Admin",
     "Trust & Safety",
     "Content Reviewer",
-    "Moderator"
+    "Moderator",
+    "Sales Panel"
   ];
 
   try {

@@ -12,5 +12,6 @@ router.get('/jobs', employerController.getJobs);
 router.get('/candidates', employerController.getCandidates);
 router.get('/team', employerController.getTeam);
 router.put('/settings', employerController.updateSettings);
+router.post('/subscribe', employerController.subscribeToPlan);
 
 module.exports = router;
